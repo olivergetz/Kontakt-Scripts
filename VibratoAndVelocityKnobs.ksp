@@ -1,0 +1,64 @@
+on init
+	make_perfview {Activate "Performance View"}
+	set_ui_height_px(130) {Change the size of the instrument's ui in Kontakt to fit ui elements}
+
+	{Master position for UI}
+	declare const UIX := 65
+	declare const UIY := 0
+	{Relative position for velocity knob}
+	declare const VelPosX := 100
+	declare const VelPosY := 0
+	{Relative position for vibrato knob}
+	declare const VibPosX := 0
+	declare const VibPosY := 0
+
+
+	{Vibrato Amount Knob}
+	declare ui_label $VIB_LABEL (1,1)
+	declare ui_knob $VIB_KNOB (0, 1000000, 10000)
+
+	{Target of Knob}
+	{In the case of message "Object "ADSR -> LFO" not found," try pressing "Apply" in Kontakt one more time.}
+	$VIB_KNOB := get_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, find_mod(0,"ADSR -> LFO"), -1)
+
+	{Change Knob units to percent}
+	set_knob_unit($VIB_KNOB,$KNOB_UNIT_PERCENT)
+	{Remove extra 0's from units}
+	set_knob_label($VIB_KNOB,get_engine_par_disp($ENGINE_PAR_MOD_TARGET_INTENSITY,0,find_mod(0,"ADSR -> LFO"),-1))
+	set_text($VIB_LABEL,"Vibrato")
+	set_text($VIB_KNOB,"Amount")
+	{Move Knob and label UI based on the master UI variable}
+	move_control_px($VIB_LABEL, UIX + VibPosX, UIY + VibPosY)
+	move_control_px($VIB_KNOB, UIX + VibPosX, UIY + VibPosY + 20)
+
+	{Random Velocity Amount Knob}
+	declare ui_label $RND_LABEL (1,1)
+	declare ui_knob $RND_KNOB (0, 1000000, 10000)
+
+	$RND_KNOB := get_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, find_mod(0,"RND -> VOLUME"), -1)
+
+	set_knob_unit($RND_KNOB,$KNOB_UNIT_PERCENT)
+	set_knob_label($RND_KNOB,get_engine_par_disp($ENGINE_PAR_MOD_TARGET_INTENSITY,0,find_mod(0,"RND -> VOLUME"),-1))
+	set_text($RND_LABEL,"Random Velocity")
+	set_text($RND_KNOB,"Amount")
+	move_control_px($RND_LABEL, UIX + VelPosX, UIY + VelPosY)
+	move_control_px($RND_KNOB, UIX + VelPosX, UIY + VelPosY + 20)
+
+end on
+
+{Change things when adjusting UI}
+on ui_control ($RND_KNOB) 
+
+	{Set new value}
+	set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY,$RND_KNOB, 0, find_mod(0,"RND -> VOLUME"), -1)
+	{Set new label, so the 0's we removed don't return.}
+	set_knob_label($RND_KNOB,get_engine_par_disp($ENGINE_PAR_MOD_TARGET_INTENSITY,0,find_mod(0,"RND -> VOLUME"),-1))
+
+end on
+
+on ui_control ($VIB_KNOB) 
+
+	set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY,$VIB_KNOB, 0, find_mod(0,"ADSR -> LFO"), -1)
+	set_knob_label($VIB_KNOB,get_engine_par_disp($ENGINE_PAR_MOD_TARGET_INTENSITY,0,find_mod(0,"ADSR -> LFO"),-1))
+
+end on
