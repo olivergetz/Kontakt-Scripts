@@ -1,0 +1,32 @@
+on init
+	declare $note_number
+	declare $is_active
+	declare $first_note
+	declare $second_note
+	$is_active := 0
+	$note_number := 2
+	$first_note := 0
+	$second_note := 0
+end on
+
+on controller
+	if (%CC[$CC_NUM] > 64)
+		$is_active := 1
+	end if
+	if (%CC[$CC_NUM] <= 64)
+		$is_active := 0
+	end if
+end on
+
+on note
+	$second_note := $first_note
+	$first_note := $EVENT_NOTE
+	if ($EVENT_NOTE mod 12 < 3 and $is_active = 1)
+		if ($second_note mod 12 > $first_note mod 12){if second note is lower}
+			play_note(0,$EVENT_VELOCITY,0,$DURATION_QUARTER/2)
+		end if
+		if ($second_note mod 12 < $first_note mod 12){if second note is higher}
+			play_note(1,$EVENT_VELOCITY,0,$DURATION_QUARTER/2)
+		end if
+	end if
+end on
